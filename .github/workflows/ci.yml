@@ -69,9 +69,58 @@ jobs:
           docker run --rm gpu-heat-diffusion:latest ./heat2d -h || true
           docker run --rm gpu-heat-diffusion:latest ./heat2d -n 37 -e 1e-4
 
-      - name: Verify Jupyter Notebook Conversion Inside Container
+      - name: Generate Rendered Notebook HTML Report
         run: |
-          echo "Verifying notebook convertibility inside container..."
-          docker run --rm gpu-heat-diffusion:latest \
-            jupyter nbconvert --to html G25ait2026_final.ipynb --output test_render.html
+          echo "Rendering standalone HTML report from notebook..."
+          docker run --name reporter gpu-heat-diffusion:latest \
+            jupyter nbconvert --to html G25ait2026_final.ipynb --output report.html
+          docker cp reporter:/workspace/report.html ./rendered_notebook.html
+          docker rm reporter
           echo "Notebook successfully rendered to HTML."
+
+      - name: Extract Compiled CUDA Binaries and Package Artifacts
+        run: |
+          echo "Extracting compiled Linux binaries from Docker container..."
+          mkdir -p dist/bin dist/reports dist/docs
+          
+          CONTAINER_ID=$(docker create gpu-heat-diffusion:latest)
+          docker cp $CONTAINER_ID:/workspace/heat2d dist/bin/heat2d
+          docker cp $CONTAINER_ID:/workspace/gmg dist/bin/gmg
+          docker rm $CONTAINER_ID
+
+          # Move rendered report
+          cp rendered_notebook.html dist/reports/G25ait2026_interactive_report.html
+
+          # Include PDF report and README if available
+          [ -f "G25ait2026_IEEE_report_final.pdf" ] && cp "G25ait2026_IEEE_report_final.pdf" dist/docs/ || true
+          [ -f "README.md" ] && cp "README.md" dist/ || true
+
+          # Generate Build Manifest
+          cat <<EOF > dist/BUILD_INFO.txt
+          =======================================================
+          GPU-Accelerated 2D Heat Diffusion Solver - Build Info
+          =======================================================
+          Commit SHA    : ${{ github.sha }}
+          Branch        : ${{ github.ref_name }}
+          Built By      : GitHub Actions
+          CUDA Toolchain: CUDA 12.6.3 (nvcc -O3 -std=c++17 -lineinfo)
+          GPU Targets   : sm_75 (T4), sm_80 (A100), sm_86 (RTX 30xx),
+                          sm_89 (RTX 40xx), sm_90 (H100), compute_75 (PTX)
+          Artifacts     :
+            - dist/bin/heat2d (JOR & RB-SOR solver binary)
+            - dist/bin/gmg (Geometric Multigrid solver binary)
+            - dist/reports/G25ait2026_interactive_report.html
+            - dist/docs/G25ait2026_IEEE_report_final.pdf
+          =======================================================
+          EOF
+
+          echo "Artifact structure prepared:"
+          ls -laR dist/
+
+      - name: Upload Artifacts (Downloadable ZIP via GitHub Actions)
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpu-heat-diffusion-artifacts
+          path: dist/
+          retention-days: 30
+          if-no-files-found: error
