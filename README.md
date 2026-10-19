@@ -226,7 +226,7 @@ nvcc -O3 -std=c++17 -arch=sm_75 gmg.cu    -o gmg
 
 ### Option 2 — Docker
 
-The image (`nvidia/cuda:12.6.3-devel-ubuntu22.04`) compiles both solvers and includes JupyterLab with NumPy, SciPy, pandas and Matplotlib.
+The image (`nvidia/cuda:12.6.3-devel-ubuntu22.04`) compiles both solvers and includes JupyterLab with NumPy, pandas and Matplotlib.
 
 ```bash
 docker build -t gpu-heat-diffusion:latest .               # or: make docker-build
@@ -343,7 +343,7 @@ RESULT,method,cycle,precision,N,levels,coarsest,nu1,nu2,fmg,graph,cycles,converg
 ├── make_gmg_assets.py                # Figures, LaTeX tables and numbers for GMG (reads gdata/)
 ├── data/                             # Measured CSVs: iterations, ω sweep, benchmarks, polling interval
 ├── gdata/                            # Measured CSVs: GMG cycles, timings, accuracy, ν and level studies
-├── assets/                           # 13 PNG figures, LaTeX tables (.tex), summary JSON
+├── assets/                           # 13 PNG figures, LaTeX tables, summary numbers (numbers.tex/.json)
 ├── Makefile                          # Build, run and Docker targets
 ├── Dockerfile                        # CUDA 12.6 image with both solvers and JupyterLab
 ├── .dockerignore
@@ -378,7 +378,7 @@ graph LR
 
 1. **Workspace integrity** — parses the notebook JSON and checks that all required source, build and report files exist.
 2. **Docker build and CUDA compile** — builds the image (compiling for `sm_75`–`sm_90` plus PTX), runs both binaries inside it, and extracts the compiled executables. GitHub-hosted runners have no GPU, so this confirms that the code compiles and starts, not the numerical results.
-3. **Package and upload** — bundles the binaries, sources, `data/`, `gdata/`, figures, LaTeX tables, an HTML export of the notebook and the PDF report into the **`gpu-heat-diffusion-complete-artifacts`** artifact (kept 30 days).
+3. **Package and upload** — bundles the compiled binaries and sources, `data/` and `gdata/`, the figures, the LaTeX tables, an HTML export of the notebook and the PDF report into the **`gpu-heat-diffusion-complete-artifacts`** artifact (kept 30 days).
 
 To download it: open the [Actions tab](https://github.com/AzDevops143/GPU-problem1/actions), select the latest successful run, and scroll to **Artifacts**.
 

@@ -46,4 +46,4 @@ docker-jupyter:
 	    jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
 
 clean:
-	rm -f heat2d gmg heat_diffusion *.o *.csv
+	rm -f heat2d gmg *.o *.csv *.bin

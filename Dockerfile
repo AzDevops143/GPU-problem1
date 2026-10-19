@@ -13,29 +13,20 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
 ENV PYTHONUNBUFFERED=1
 
-# Install essential build tools, development libraries and Python
+# Install Python (the CUDA devel image already provides nvcc and a host compiler)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    cmake \
-    git \
-    curl \
-    wget \
     ca-certificates \
-    pkg-config \
     python3 \
     python3-pip \
-    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install scientific computing & Jupyter environment
 RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel && \
     pip3 install --no-cache-dir \
     numpy \
-    scipy \
     matplotlib \
     pandas \
     jupyterlab \
-    notebook \
     nbconvert
 
 WORKDIR /workspace
@@ -64,8 +55,7 @@ RUN nvcc -O3 -std=c++17 -lineinfo \
     -gencode arch=compute_89,code=sm_89 \
     -gencode arch=compute_90,code=sm_90 \
     -gencode arch=compute_75,code=compute_75 \
-    gmg.cu -o gmg && \
-    ln -sf gmg heat_diffusion
+    gmg.cu -o gmg
 
 # Expose port for JupyterLab
 EXPOSE 8888

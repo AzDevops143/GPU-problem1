@@ -116,34 +116,27 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: compiled-cuda-binaries
-          path: dist/2_source_and_binaries/bin/
+          path: dist/1_source_and_binaries/bin/
 
-      - name: Package All 5 Required Categories into Artifacts
+      - name: Package Distribution Bundle
         run: |
-          echo "Assembling complete 5-category distribution package..."
-          
-          # Category 1 & 3: Generated Directories & Benchmark Data Files (data/ and gdata/)
-          mkdir -p dist/1_directories dist/3_benchmark_data
-          cp -r data/ dist/1_directories/
-          cp -r gdata/ dist/1_directories/
-          cp -r data/ dist/3_benchmark_data/
-          cp -r gdata/ dist/3_benchmark_data/
+          echo "Assembling distribution package..."
 
-          # Category 2: Standalone Source Code & Compiled Binaries
-          mkdir -p dist/2_source_and_binaries/src
-          cp heat2d.cu gmg.cu make_assets.py make_gmg_assets.py Makefile dist/2_source_and_binaries/src/
+          # Source code (compiled binaries were downloaded into bin/ above)
+          mkdir -p dist/1_source_and_binaries/src
+          cp heat2d.cu gmg.cu make_assets.py make_gmg_assets.py Makefile dist/1_source_and_binaries/src/
 
-          # Category 4: High-Resolution Figures (assets/*.png)
-          mkdir -p dist/4_figures
-          cp assets/*.png dist/4_figures/
+          # Measured benchmark data (data/ and gdata/)
+          mkdir -p dist/2_benchmark_data
+          cp -r data/ gdata/ dist/2_benchmark_data/
 
-          # Category 5: LaTeX Tables & Summary JSONs (assets/*.tex, assets/*.json)
-          mkdir -p dist/5_latex_tables_and_json
-          cp assets/*.tex assets/*.json dist/5_latex_tables_and_json/
+          # Figures
+          mkdir -p dist/3_figures
+          cp assets/*.png dist/3_figures/
 
-          # Also include full assets directory for convenience
-          mkdir -p dist/assets
-          cp -r assets/* dist/assets/
+          # LaTeX tables and summary numbers
+          mkdir -p dist/4_latex_tables_and_json
+          cp assets/*.tex assets/*.json dist/4_latex_tables_and_json/
 
           # Additional: Standalone Interactive HTML Report & Documentation
           mkdir -p dist/reports dist/docs
@@ -165,18 +158,16 @@ jobs:
           Target GPUs   : sm_75, sm_80, sm_86, sm_89, sm_90, compute_75
           
           Artifact Structure:
-            1_directories/              -> Generated data/ and gdata/ folders
-            2_source_and_binaries/      -> Standalone .cu/.py source and compiled binaries
-            3_benchmark_data/           -> All CSV benchmark tables and metadata
-            4_figures/                  -> All 13 publication PNG plots
-            5_latex_tables_and_json/    -> All LaTeX .tex tables and summary JSONs
-            assets/                     -> Complete assets directory
-            reports/                    -> Standalone interactive HTML report
-            docs/                       -> IEEE final research paper (PDF) and README
+            1_source_and_binaries/      -> .cu / .py sources, Makefile and compiled binaries
+            2_benchmark_data/           -> data/ and gdata/ measured CSVs
+            3_figures/                  -> All 13 publication PNG plots
+            4_latex_tables_and_json/    -> LaTeX tables and summary numbers
+            reports/                    -> Standalone HTML export of the notebook
+            docs/                       -> IEEE report (PDF)
           ==============================================================================
           EOF
 
-          chmod +x dist/2_source_and_binaries/bin/* || true
+          chmod +x dist/1_source_and_binaries/bin/* || true
           echo "Package structure assembled successfully:"
           ls -laR dist/
 
