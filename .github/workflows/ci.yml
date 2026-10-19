@@ -1,0 +1,77 @@
+name: GPU Heat Diffusion CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-workspace:
+    name: Workspace & Code Integrity Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Verify Notebook JSON Integrity
+        run: |
+          python -c "
+          import json, os
+          assert os.path.exists('G25ait2026_final.ipynb'), 'Missing notebook file'
+          with open('G25ait2026_final.ipynb', 'r', encoding='utf-8') as f:
+              nb = json.load(f)
+          print('Notebook parsed successfully. Total cells:', len(nb.get('cells', [])))
+          "
+
+      - name: Check Required Files
+        run: |
+          for f in Dockerfile Makefile .dockerignore heat2d.cu gmg.cu README.md; do
+            if [ ! -f "$f" ]; then
+              echo "Error: Required file $f is missing" && exit 1
+            fi
+            echo "Found $f"
+          done
+
+  docker-build-and-verify:
+    name: Build Multi-GPU Container & Compile Solvers
+    runs-on: ubuntu-latest
+    needs: validate-workspace
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build CUDA Docker Image
+        run: |
+          echo "Building Docker image with nvcc compiling for sm_75, sm_80, sm_86, sm_89, sm_90..."
+          docker build -t gpu-heat-diffusion:latest .
+
+      - name: Test Container Initialization & Binary Verification
+        run: |
+          echo "Verifying GMG solver inside container..."
+          docker run --rm gpu-heat-diffusion:latest ./gmg -h || true
+          docker run --rm gpu-heat-diffusion:latest ./gmg -n 65 -e 1e-4
+
+          echo "Verifying JOR / RB-SOR solver inside container..."
+          docker run --rm gpu-heat-diffusion:latest ./heat2d -h || true
+          docker run --rm gpu-heat-diffusion:latest ./heat2d -n 37 -e 1e-4
+
+      - name: Verify Jupyter Notebook Conversion Inside Container
+        run: |
+          echo "Verifying notebook convertibility inside container..."
+          docker run --rm gpu-heat-diffusion:latest \
+            jupyter nbconvert --to html G25ait2026_final.ipynb --output test_render.html
+          echo "Notebook successfully rendered to HTML."
