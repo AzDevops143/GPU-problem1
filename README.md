@@ -133,6 +133,11 @@ All experiments evaluated on **Google Colab NVIDIA Tesla T4 GPU** (40 SMs, 16 GB
 ## 🛠 Repository Structure
 
 ```text
+├── Dockerfile                           # Production multi-GPU CUDA Docker container
+├── Makefile                             # Build configuration for CUDA solvers & Docker
+├── .dockerignore                        # Docker build context exclusions
+├── heat2d.cu                            # Standalone CUDA source for JOR and Red-Black SOR
+├── gmg.cu                              # Standalone CUDA source for Geometric Multigrid
 ├── G25ait2026_final.ipynb               # Full Jupyter Notebook with CUDA C++ code & plots
 ├── G25ait2026_IEEE_report_final.pdf     # Complete IEEE formatted research report
 ├── G25ait2026_HeatDiffusion_final.pptx  # Presentation deck
@@ -143,7 +148,41 @@ All experiments evaluated on **Google Colab NVIDIA Tesla T4 GPU** (40 SMs, 16 GB
 
 ## 💻 How to Run
 
-### In Google Colab
+### Option 1: Docker Container (Recommended for Reproducibility)
+
+Build and run the container with full GPU access across architectures (T4, A100, RTX 30xx/40xx, H100):
+
+```bash
+# 1. Build the Docker image
+docker build -t gpu-heat-diffusion:latest .
+
+# 2. Run default GMG benchmark inside GPU container
+docker run --gpus all --rm -it gpu-heat-diffusion:latest
+
+# 3. Run interactive JupyterLab inside GPU container
+docker run --gpus all --rm -it -p 8888:8888 gpu-heat-diffusion:latest \
+    jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+
+# 4. Or use make targets
+make docker-build
+make docker-run
+make docker-jupyter
+```
+
+### Option 2: Local Compilation with `make`
+
+```bash
+# Compile both heat2d and gmg solvers
+make
+
+# Run JOR & RB-SOR solver benchmark
+./heat2d -n 256 -e 1e-4 -m all -v both -p double
+
+# Run Geometric Multigrid benchmark
+./gmg -n 513 -e 1e-4 -c V -p double
+```
+
+### Option 3: In Google Colab
 1. Upload and open [`G25ait2026_final.ipynb`](G25ait2026_final.ipynb).
 2. Set Runtime Type to **GPU (Tesla T4)**.
 3. Run the cells sequentially to compile kernels via `nvcc`, execute benchmarks, and generate validation plots.
@@ -152,6 +191,10 @@ All experiments evaluated on **Google Colab NVIDIA Tesla T4 GPU** (40 SMs, 16 GB
 The implementation includes a `--verify` flag executing CPU reference validation:
 - Validates bit-for-bit equivalence between sequential CPU execution and GPU kernels using an emulated barrier and warp-shuffle model.
 - Checks convergence accuracy across odd/even dimensions, float32, and float64 precisions.
+  ```bash
+  ./heat2d -n 37 -e 1e-4 --verify
+  ./gmg -n 65 -e 1e-4 --verify
+  ```
 
 ---
 
