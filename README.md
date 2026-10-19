@@ -220,7 +220,7 @@ graph LR
 
 ---
 
-## 📖 Citation & References
+##   Citation & References
 - D. M. Young, *Iterative Solution of Large Linear Systems*. Academic Press, 1971.
 - W. L. Briggs, V. E. Henson, and S. F. McCormick, *A Multigrid Tutorial*, 2nd ed. SIAM, 2000.
 - NVIDIA Corporation, *CUDA C++ Programming Guide*, 2024.
