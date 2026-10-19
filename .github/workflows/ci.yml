@@ -116,54 +116,74 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: compiled-cuda-binaries
-          path: dist/bin/
+          path: dist/2_source_and_binaries/bin/
 
-      - name: Generate Standalone HTML Report from Notebook
+      - name: Package All 5 Required Categories into Artifacts
         run: |
+          echo "Assembling complete 5-category distribution package..."
+          
+          # Category 1 & 3: Generated Directories & Benchmark Data Files (data/ and gdata/)
+          mkdir -p dist/1_directories dist/3_benchmark_data
+          cp -r data/ dist/1_directories/
+          cp -r gdata/ dist/1_directories/
+          cp -r data/ dist/3_benchmark_data/
+          cp -r gdata/ dist/3_benchmark_data/
+
+          # Category 2: Standalone Source Code & Compiled Binaries
+          mkdir -p dist/2_source_and_binaries/src
+          cp heat2d.cu gmg.cu make_assets.py make_gmg_assets.py Makefile dist/2_source_and_binaries/src/
+
+          # Category 4: High-Resolution Figures (assets/*.png)
+          mkdir -p dist/4_figures
+          cp assets/*.png dist/4_figures/
+
+          # Category 5: LaTeX Tables & Summary JSONs (assets/*.tex, assets/*.json)
+          mkdir -p dist/5_latex_tables_and_json
+          cp assets/*.tex assets/*.json dist/5_latex_tables_and_json/
+
+          # Also include full assets directory for convenience
+          mkdir -p dist/assets
+          cp -r assets/* dist/assets/
+
+          # Additional: Standalone Interactive HTML Report & Documentation
           mkdir -p dist/reports dist/docs
           jupyter nbconvert --to html G25ait2026_final.ipynb --output dist/reports/G25ait2026_interactive_report.html
-          echo "Rendered notebook to standalone HTML report."
-
-      - name: Bundle Research Paper and Documentation
-        run: |
           if [ -f "G25ait2026_IEEE_report_final.pdf" ]; then
             cp "G25ait2026_IEEE_report_final.pdf" dist/docs/
           fi
-          cp "README.md" dist/
+          cp README.md dist/
 
-      - name: Generate Build Manifest
-        run: |
+          # Generate Build Manifest
           cat <<EOF > dist/BUILD_INFO.txt
-          =======================================================
-          GPU-Accelerated 2D Heat Diffusion Solver - Release Artifacts
-          =======================================================
+          ==============================================================================
+          GPU-Accelerated 2D Heat Diffusion Solver - Complete Distribution Bundle
+          ==============================================================================
           Commit SHA    : ${{ github.sha }}
           Branch        : ${{ github.ref_name }}
-          Built By      : GitHub Actions Pipeline
+          Built By      : GitHub Actions Automated Pipeline
           CUDA Version  : CUDA 12.6.3
-          Target GPUs   : sm_75 (Tesla T4, RTX 20-series)
-                          sm_80 (A100)
-                          sm_86 (RTX 30-series)
-                          sm_89 (RTX 40-series)
-                          sm_90 (H100)
-                          compute_75 (Forward PTX for Blackwell)
+          Target GPUs   : sm_75, sm_80, sm_86, sm_89, sm_90, compute_75
           
-          Package Contents:
-            - bin/heat2d (Standalone Linux executable for JOR and RB-SOR)
-            - bin/gmg (Standalone Linux executable for Geometric Multigrid)
-            - reports/G25ait2026_interactive_report.html (Interactive HTML report)
-            - docs/G25ait2026_IEEE_report_final.pdf (Official IEEE research report)
-            - README.md (Comprehensive documentation & benchmark tables)
-          =======================================================
+          Artifact Structure:
+            1_directories/              -> Generated data/ and gdata/ folders
+            2_source_and_binaries/      -> Standalone .cu/.py source and compiled binaries
+            3_benchmark_data/           -> All CSV benchmark tables and metadata
+            4_figures/                  -> All 13 publication PNG plots
+            5_latex_tables_and_json/    -> All LaTeX .tex tables and summary JSONs
+            assets/                     -> Complete assets directory
+            reports/                    -> Standalone interactive HTML report
+            docs/                       -> IEEE final research paper (PDF) and README
+          ==============================================================================
           EOF
-          chmod +x dist/bin/* || true
-          echo "Package structure ready:"
+
+          chmod +x dist/2_source_and_binaries/bin/* || true
+          echo "Package structure assembled successfully:"
           ls -laR dist/
 
       - name: Publish Final Downloadable Artifacts ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: gpu-heat-diffusion-artifacts
+          name: gpu-heat-diffusion-complete-artifacts
           path: dist/
           retention-days: 30
           if-no-files-found: error
