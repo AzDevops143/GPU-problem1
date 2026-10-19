@@ -1,7 +1,7 @@
 # ==============================================================================
 # GPU-Accelerated 2D Heat Diffusion Solver: Dockerfile
 # Supports Jacobi (JOR), Red-Black SOR, and Geometric Multigrid (GMG) with CUDA Graphs
-# Architectures: Turing (T4), Ampere (A100/RTX 30xx), Ada (RTX 40xx), Hopper (H100), Blackwell
+# Architectures: Turing (T4)  
 # ==============================================================================
 
 FROM nvidia/cuda:12.6.3-devel-ubuntu22.04
