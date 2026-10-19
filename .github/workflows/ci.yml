@@ -20,12 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Verify Notebook JSON Integrity
         run: |
@@ -55,10 +55,10 @@ jobs:
     needs: validate-workspace
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build CUDA Docker Image with Multi-Architecture Support
         run: |
@@ -86,7 +86,7 @@ jobs:
           ls -la bin_output/
 
       - name: Stash Compiled Binaries for Artifact Job
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: compiled-cuda-binaries
           path: bin_output/
@@ -101,19 +101,19 @@ jobs:
     needs: [validate-workspace, docker-build-and-compile]
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python for Report Generation
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Install Jupyter and nbconvert
         run: |
           pip install --no-cache-dir jupyter nbconvert
 
       - name: Download Compiled CUDA Binaries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: compiled-cuda-binaries
           path: dist/1_source_and_binaries/bin/
@@ -172,7 +172,7 @@ jobs:
           ls -laR dist/
 
       - name: Publish Final Downloadable Artifacts ZIP
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gpu-heat-diffusion-complete-artifacts
           path: dist/
