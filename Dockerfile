@@ -13,8 +13,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
 ENV PYTHONUNBUFFERED=1
 
-# Install Python (the CUDA devel image already provides nvcc and a host compiler)
+# Install the host C++ toolchain used by nvcc, and Python
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     ca-certificates \
     python3 \
     python3-pip \
