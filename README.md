@@ -10,13 +10,12 @@ Comprehensive CUDA C++ implementation, numerical analysis, and architectural opt
 ---
 
 ##   Authors & Course Information
-
+- **Faculty Advisor**: **Dr. Binod Kumar**
 - **Peteti Charantej** (G25AIT2026)
 - **Aryaveer Rathi** (G25AIT2021)
 - **Sandeep** (G25AIT2036)
 - **Course**: GPU Programming Assignment, Problem 1
-- **Faculty Advisor**: Dr. Binod Kumar
-
+ 
 ---
 
 ##   Key Highlights & Architectural Findings
