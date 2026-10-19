@@ -198,6 +198,28 @@ The implementation includes a `--verify` flag executing CPU reference validation
 
 ---
 
+## 🔄 GitHub Actions CI/CD Pipeline & Artifacts
+
+The repository features an automated GitHub Actions CI pipeline (`.github/workflows/ci.yml`) composed of 3 modular jobs:
+
+```mermaid
+graph LR
+    A["1. Workspace Integrity"] --> B["2. Docker Build & CUDA Compile"]
+    B --> C["3. Package & Upload Artifacts"]
+    A --> C
+```
+
+1. **`1. Workspace & Code Integrity Check`**: Validates notebook JSON schema, dependencies, and required project files.
+2. **`2. Docker Build & CUDA Compilation`**: Builds the container using `nvcc` targeting `sm_75`, `sm_80`, `sm_86`, `sm_89`, `sm_90`, and `compute_75`, runs container tests, and extracts compiled binaries.
+3. **`3. Package & Upload Downloadable Artifacts`**: Packages the compiled standalone Linux binaries, converts the Jupyter notebook to a standalone HTML report, bundles the IEEE PDF report, and publishes the **`gpu-heat-diffusion-artifacts.zip`** bundle.
+
+### Downloading Pre-Built Artifacts:
+1. Open the [**Actions tab**](https://github.com/AzDevops143/GPU-problem1/actions) on GitHub.
+2. Click on the latest workflow run.
+3. Scroll down to the **Artifacts** section to download the ready-to-run `.zip` package.
+
+---
+
 ## 📖 Citation & References
 - D. M. Young, *Iterative Solution of Large Linear Systems*. Academic Press, 1971.
 - W. L. Briggs, V. E. Henson, and S. F. McCormick, *A Multigrid Tutorial*, 2nd ed. SIAM, 2000.
