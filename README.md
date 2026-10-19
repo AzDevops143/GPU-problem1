@@ -9,7 +9,7 @@ Comprehensive CUDA C++ implementation, numerical analysis, and architectural opt
 
 ---
 
-## 👥 Authors & Course Information
+##   Authors & Course Information
 
 - **Peteti Charantej** (G25AIT2026)
 - **Aryaveer Rathi** (G25AIT2021)
@@ -19,7 +19,7 @@ Comprehensive CUDA C++ implementation, numerical analysis, and architectural opt
 
 ---
 
-## 🚀 Key Highlights & Architectural Findings
+##   Key Highlights & Architectural Findings
 
 1. **Host-Sync-Free Convergence Detection**:
    - Updates fuse warp-shuffle reductions (`__shfl_down_sync`) and block-level `atomicMax` on IEEE-754 bit patterns (`atomicMaxNonNeg`).
@@ -38,7 +38,7 @@ Comprehensive CUDA C++ implementation, numerical analysis, and architectural opt
 
 ---
 
-## 📐 Problem Formulation
+##   Problem Formulation
 
 The steady-state temperature distribution on a 2D plate $\Omega = [0, 1]^2$ is governed by the Laplace equation:
 $$\nabla^2 T = \frac{\partial^2 T}{\partial x^2} + \frac{\partial^2 T}{\partial y^2} = 0$$
@@ -56,7 +56,7 @@ $$T_{i,j}^{t+1} = \frac{1}{4} \left( T_{i-1,j}^t + T_{i+1,j}^t + T_{i,j-1}^t + T
 
 ---
 
-## 🔬 Solvers Implemented
+##   Solvers Implemented
 
 ### 1. Jacobi Over-Relaxation (JOR)
 - Stencil update with over-relaxation parameter $\omega$ (for $\omega = 1$, strictly matches standard Jacobi).
@@ -82,7 +82,7 @@ $$T_{i,j}^{t+1} = \frac{1}{4} \left( T_{i-1,j}^t + T_{i+1,j}^t + T_{i,j-1}^t + T
 
 ---
 
-## 📊 Experimental Results
+##   Experimental Results
 
 All experiments evaluated on **Google Colab NVIDIA Tesla T4 GPU** (40 SMs, 16 GB GDDR6, 320 GB/s peak, CUDA 13.0, `nvcc -O3 -arch=sm_75`, FP64 default).
 
@@ -130,7 +130,7 @@ All experiments evaluated on **Google Colab NVIDIA Tesla T4 GPU** (40 SMs, 16 GB
 
 ---
 
-## 🛠 Repository Structure
+##   Repository Structure
 
 ```text
 ├── Dockerfile                           # Production multi-GPU CUDA Docker container
@@ -146,7 +146,7 @@ All experiments evaluated on **Google Colab NVIDIA Tesla T4 GPU** (40 SMs, 16 GB
 
 ---
 
-## 💻 How to Run
+##   How to Run
 
 ### Option 1: Docker Container (Recommended for Reproducibility)
 
@@ -198,7 +198,7 @@ The implementation includes a `--verify` flag executing CPU reference validation
 
 ---
 
-## 🔄 GitHub Actions CI/CD Pipeline & Artifacts
+##   GitHub Actions CI/CD Pipeline & Artifacts
 
 The repository features an automated GitHub Actions CI pipeline (`.github/workflows/ci.yml`) composed of 3 modular jobs:
 
